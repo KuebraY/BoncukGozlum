@@ -347,26 +347,45 @@
        MODAL
        ========================= */
     .modal{
-      position:fixed;
-      inset:0;
-      display:none;
-      place-items:center;
-      background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
-      padding: 18px;
-      z-index: 50;
-      overflow:auto;
+        position: fixed;
+        inset: 0;
+        display: none;
+
+        /* vorher: place-items:center; */
+        align-items: flex-start;      /* ✅ oben starten */
+        justify-content: center;
+
+        background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
+
+        /* ✅ iPhone Safe Areas + bisschen Luft */
+        padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+
+        z-index: 50;
+
+        /* ✅ Modal selbst scrollt */
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
-    .modal.open{ display:grid; }
+
+    .modal.open{ display:flex; }
+
 
     .modal-card{
-      width:min(680px, 96vw);
-      background:white;
-      border-radius: 22px;
-      padding: 18px 16px;
-      box-shadow: var(--shadow);
-      text-align:center;
-      position: relative;
-      overflow: hidden;
+        width: min(680px, 96vw);
+        background: white;
+        border-radius: 22px;
+        padding: 18px 16px;
+        box-shadow: var(--shadow);
+        text-align: center;
+        position: relative;
+
+        /* ✅ Wichtig: Card darf nicht “über den Screen” gehen */
+        max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+
+        /* ✅ Card startet oben schön */
+        margin-top: 8px;
     }
 
     .modal-card h2{
@@ -1067,4 +1086,3 @@
   </script>
 </body>
 </html>
-
