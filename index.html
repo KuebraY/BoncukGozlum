@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Boncuk Gözlüme 💘</title>
 
   <style>
@@ -255,10 +255,9 @@
       justify-content:center;
       gap: 14px;
       position:relative;
-      min-height: 110px; /* genug Platz fürs Ausweichen */
+      min-height: 110px;
     }
 
-    /* Global Buttons (Desktop/Default) */
     button{
       border: none;
       border-radius: 14px;
@@ -275,7 +274,6 @@
       box-shadow: 0 7px 14px rgba(0,0,0,.12);
     }
 
-    /* YES/NO (Desktop) */
     #yesBtn{
       background: #2ecc71;
       color: white;
@@ -283,7 +281,7 @@
       font-size: 22px;
       line-height: 1.1;
       min-width: 140px;
-      margin-left: -40px; /* nach links */
+      margin-left: -40px;
       white-space: nowrap;
     }
 
@@ -344,48 +342,48 @@
     }
 
     /* =========================
-       MODAL
+       MODAL (FIX iPhone: scroll position reset via JS)
        ========================= */
     .modal{
-        position: fixed;
-        inset: 0;
-        display: none;
+      position: fixed;
+      inset: 0;
+      display: none;
 
-        /* vorher: place-items:center; */
-        align-items: flex-start;      /* ✅ oben starten */
-        justify-content: center;
+      align-items: flex-start;
+      justify-content: center;
 
-        background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
+      background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
 
-        /* ✅ iPhone Safe Areas + bisschen Luft */
-        padding: calc(14px + env(safe-area-inset-top)) 14px calc(14px + env(safe-area-inset-bottom));
+      padding:
+        calc(16px + env(safe-area-inset-top))
+        14px
+        calc(16px + env(safe-area-inset-bottom));
 
-        z-index: 50;
+      z-index: 50;
 
-        /* ✅ Modal selbst scrollt */
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+      /* Modal selbst scrollt */
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+
+      /* verhindert “bounce” nach hinten */
+      overscroll-behavior: contain;
     }
-
     .modal.open{ display:flex; }
 
-
     .modal-card{
-        width: min(680px, 96vw);
-        background: white;
-        border-radius: 22px;
-        padding: 18px 16px;
-        box-shadow: var(--shadow);
-        text-align: center;
-        position: relative;
+      width: min(680px, 96vw);
+      background: white;
+      border-radius: 22px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: relative;
 
-        /* ✅ Wichtig: Card darf nicht “über den Screen” gehen */
-        max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
+      max-height: calc(100svh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
 
-        /* ✅ Card startet oben schön */
-        margin-top: 8px;
+      margin: 0; /* ✅ wichtig: kein auto/komisches top */
     }
 
     .modal-card h2{
@@ -450,6 +448,7 @@
       border: 1px solid rgba(255, 77, 166, 0.18);
       max-height: 220px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       scroll-behavior: smooth;
     }
 
@@ -589,9 +588,6 @@
       font-weight: 950;
     }
 
-    /* =========================
-       MOBILE: Alles kleiner + Actions untereinander
-       ========================= */
     @media (max-width: 520px){
       .env-wrap{ gap: 16px; padding: 14px; }
       .card{ width: min(94vw, 680px); padding: 22px 14px 18px; border-radius: 20px; }
@@ -600,10 +596,8 @@
       .letter{ max-height: 44vh; }
       .countdown{ width: min(94vw, 520px); }
 
-      /* alle Buttons kleiner */
       button{ padding: 10px 14px; font-size: 16px; }
 
-      /* YES/NO bleiben nebeneinander & NICHT riesig */
       #yesBtn{
         padding: 9px 16px;
         font-size: 18px;
@@ -615,7 +609,6 @@
         font-size: 16px;
       }
 
-      /* Modal/Random Action Buttons schöner */
       .modal-actions button,
       .random-actions button{
         width: 100%;
@@ -638,7 +631,6 @@
       <div id="envelope">
         <div class="env-back"></div>
 
-        <!-- Karte -->
         <div class="letter-card">
           <div class="letter-top">Für dich 💌</div>
           <div class="letter-line"></div>
@@ -660,7 +652,6 @@
     <div class="card" id="card">
       <div class="hearts" id="hearts"></div>
 
-      <!-- COUNTDOWN (Main) -->
       <div class="countdown">
         <span class="cd-label">Countdown bis 14.02:</span>
         <div class="cd-box">
@@ -672,9 +663,7 @@
       </div>
 
       <h1 class="title">Will you be my Valentine? 💖</h1>
-
       <div class="bear">🧸💐</div>
-
       <div class="sub" id="question">Überlege es dir gut...😏</div>
 
       <div class="btn-area" id="btnArea">
@@ -692,7 +681,6 @@
       <div class="modal-top-emoji">💖🥰💖</div>
       <h2 id="successTitle">Yay!!</h2>
 
-      <!-- COUNTDOWN (Modal) -->
       <div class="countdown" style="margin-top:10px;">
         <span class="cd-label">Bis 14.02:</span>
         <div class="cd-box">
@@ -712,7 +700,6 @@
         <button class="date-btn" data-date="🎮 Spieleabend (Speziell für Erwachsene..🥵)">🎮 Spieleabend</button>
         <button class="date-btn" data-date="🚗 Mini-Roadtrip + Musik">🚗 Mini-Roadtrip</button>
         <button class="date-btn" data-date="🕯️ Pyjama-Date & Deep Talk">🕯️ Pyjama-Date</button>
-
         <button class="date-btn random" id="randomBtn">🎲 Zufall</button>
       </div>
 
@@ -790,7 +777,7 @@
   <script>
     // ====== SETTINGS (hier anpassen) ======
     const boyfriendName = "Mohamad";
-    const YOUR_PHONE = "+4917687837462"; // Tipp: Fürs öffentliche Repo lieber später wieder ändern
+    const YOUR_PHONE = "PASTE_YOUR_NUMBER_HERE"; // z.B. +49157... (bitte nicht öffentlich lassen)
     // ====================================
 
     const dateOptions = [
@@ -812,6 +799,7 @@
       randomScreen.style.display = "none";
       which.classList.add("show");
       which.style.display = "block";
+      window.scrollTo(0,0);
     }
 
     const openBtn = document.getElementById("openBtn");
@@ -926,10 +914,25 @@
 
     const modal = document.getElementById("modal");
     const modalCard = document.getElementById("modalCard");
-    document.getElementById("yesBtn").addEventListener("click", () => {
+    const yesBtn = document.getElementById("yesBtn");
+
+    function openModal(){
       modal.classList.add("open");
+
+      // ✅ DER Fix: immer nach ganz oben springen (iOS merkt sich sonst die Position)
+      modal.scrollTop = 0;
+      modalCard.scrollTop = 0;
+
+      // ✅ extra sicher (Safari braucht manchmal 1 Frame)
+      requestAnimationFrame(() => {
+        modal.scrollTop = 0;
+        modalCard.scrollTop = 0;
+      });
+
       if (navigator.vibrate) navigator.vibrate([50, 40, 80]);
-    });
+    }
+
+    yesBtn.addEventListener("click", openModal);
 
     const popEmojis = ["💖","💗","💕","💘","✨","🥰"];
     function popHearts(times=14){
@@ -980,6 +983,7 @@
       rollBtn.textContent = "Los geht’s";
       dealBtn.style.display = "none";
       lastRandomResult = "";
+      window.scrollTo(0,0);
     }
 
     randomBtn.addEventListener("click", goRandomScreen);
@@ -1026,7 +1030,7 @@
 
     dealBtn.addEventListener("click", () => {
       showScreen(mainScreen);
-      modal.classList.add("open");
+      openModal();
       if (lastRandomResult) {
         chosenText.textContent = lastRandomResult;
         chosenBox.classList.add("show");
@@ -1036,7 +1040,7 @@
 
     document.getElementById("backToModalBtn").addEventListener("click", () => {
       showScreen(mainScreen);
-      modal.classList.add("open");
+      openModal();
     });
 
     const loveLetter = document.getElementById("loveLetter");
@@ -1059,6 +1063,7 @@
       const phone = YOUR_PHONE.replace(/\s+/g,"");
       const wa = `https://wa.me/${phone.replace("+","")}?text=${msg}`;
       const sms = `sms:${phone}?&body=${msg}`;
+
       const w = window.open(wa, "_blank");
       setTimeout(() => {
         if (!w || w.closed) window.location.href = sms;
@@ -1071,11 +1076,17 @@
         : "";
       const message = `Ja! ${datePart}\nIch liebe dich mein BAKLAVAAAAA <333`;
 
+      if (!YOUR_PHONE || YOUR_PHONE.includes("PASTE")) {
+        alert("Trag bitte oben bei YOUR_PHONE deine Nummer ein (z.B. +49157...) 💕");
+        return;
+      }
       openWhatsAppOrSMS(message);
     });
 
     document.getElementById("closeBtn").addEventListener("click", () => {
       modal.classList.remove("open");
+      modal.scrollTop = 0;
+      modalCard.scrollTop = 0;
     });
 
     window.addEventListener("load", () => {
