@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentinstag 💘</title>
+
+  <style>
+    :root{
+      --bg1:#ffe6f1;
+      --bg2:#fff;
+      --pink:#ff4da6;
+      --pink2:#ff7fc7;
+      --green:#2ecc71;
+      --red:#ff4d4d;
+      --shadow: 0 18px 45px rgba(0,0,0,.12);
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
+      overflow-x:hidden;
+      overflow-y:auto; /* ✅ Mobile: kann scrollen, Modal bleibt trotzdem fix */
+      -webkit-text-size-adjust: 100%;
+    }
+
+    button{ touch-action: manipulation; } /* ✅ weniger “Zoom/Delay” am Handy */
+
+    /* =========================
+       ENVELOPE SCREEN (START)
+       ========================= */
+    #envelopeScreen{
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 10%, #ffd6e7, #fff 65%);
+      display: grid;
+      place-items: center;
+      z-index: 999;
+    }
+
+    .env-wrap{
+      display:grid;
+      place-items:center;
+      gap: 22px;
+      text-align:center;
+      padding: 18px;
+      width: 100%;
+      max-width: 520px;
+    }
+
+    .env-title{
+      font-weight: 900;
+      color: var(--pink);
+      font-size: clamp(24px, 4vw, 38px);
+      margin: 0;
+      text-shadow: 0 2px 0 rgba(255,255,255,.9);
+    }
+
+    /* ====== RESPONSIVE ENVELOPE (clean) ======
+       Wir machen Breite/Höhe variabel + Dreiecke via CSS-Variablen
+    */
+    #envelope{
+      --envW: min(88vw, 320px);
+      --envH: calc(var(--envW) * 0.64);
+      --halfW: calc(var(--envW) / 2);
+      --frontTriH: calc(var(--envW) * 0.32);
+      --flapTriH:  calc(var(--envW) * 0.33);
+
+      width: var(--envW);
+      height: var(--envH);
+      position: relative;
+      border-radius: 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.18);
+      background: linear-gradient(180deg, #ffb6cd, #ff9dbb);
+      overflow: hidden;
+    }
+
+    .env-back{
+      position:absolute;
+      inset:0;
+      background: linear-gradient(180deg, #ffc6d8, #ff9dbb);
+      z-index: 1;
+    }
+
+    /* Karte im Umschlag */
+    .letter-card{
+      position:absolute;
+      left: 18px;
+      right: 18px;
+      top: 22px;
+      height: calc(100% - 70px);
+      border-radius: 14px;
+      background: rgba(255,255,255,.88);
+      border: 1px solid rgba(255,255,255,.75);
+      box-shadow: 0 14px 24px rgba(0,0,0,.10);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      transform: translateY(60px);
+      transition: transform .55s ease;
+      z-index: 2;
+      user-select:none;
+    }
+
+    .letter-top{
+      font-weight: 950;
+      color: var(--pink);
+      font-size: 16px;
+    }
+
+    .letter-line{
+      width: 70%;
+      height: 2px;
+      border-radius: 999px;
+      background: rgba(255, 77, 166, 0.22);
+    }
+
+    .letter-bottom{
+      font-weight: 850;
+      color:#444;
+      font-size: 14px;
+    }
+
+    .env-front{
+      position:absolute;
+      left:0; right:0; bottom:0;
+      height: 72%;
+      background: linear-gradient(180deg, #ffb4ca, #ff92b4);
+      border-top: 1px solid rgba(255,255,255,.35);
+      z-index: 3;
+    }
+
+    .env-front::before{
+      content:"";
+      position:absolute;
+      left:0; bottom:0;
+      width:0; height:0;
+      border-left: var(--halfW) solid #ff9dbb;
+      border-top: var(--frontTriH) solid transparent;
+    }
+
+    .env-front::after{
+      content:"";
+      position:absolute;
+      right:0; bottom:0;
+      width:0; height:0;
+      border-right: var(--halfW) solid #ff9dbb;
+      border-top: var(--frontTriH) solid transparent;
+    }
+
+    .env-flap{
+      position:absolute;
+      left:0; right:0; top:0;
+      width:0; height:0;
+      margin:auto;
+      border-left: var(--halfW) solid transparent;
+      border-right: var(--halfW) solid transparent;
+      border-top: var(--flapTriH) solid #ff5c8a;
+      transform-origin: top center;
+      transition: transform .45s ease;
+      filter: drop-shadow(0 8px 14px rgba(0,0,0,.12));
+      z-index: 4;
+    }
+
+    .seal{
+      position:absolute;
+      left:50%;
+      bottom: 34px;
+      transform: translateX(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      font-size: 20px;
+      background: rgba(255,255,255,.55);
+      border: 1px solid rgba(255,255,255,.5);
+      box-shadow: 0 10px 18px rgba(0,0,0,.14);
+      user-select:none;
+      z-index: 5;
+    }
+
+    /* Öffnen Animation */
+    #envelope.opening .env-flap{
+      transform: rotateX(160deg);
+    }
+    #envelope.opening .letter-card{
+      transform: translateY(-14px);
+    }
+
+    #openBtn{
+      border:none;
+      border-radius: 14px;
+      padding: 10px 26px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor:pointer;
+      background: #ff4d6d;
+      color:white;
+      box-shadow: 0 10px 20px rgba(0,0,0,.16);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    #openBtn:active{
+      transform: translateY(1px) scale(.99);
+      box-shadow: 0 7px 14px rgba(0,0,0,.16);
+    }
+
+    .env-hint{
+      color:#666;
+      font-weight:650;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* =========================
+       VALENTINE CARD
+       ========================= */
+    .card{
+      width:min(680px, 92vw);
+      background: rgba(255,255,255,.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 32px 22px 28px;
+      position:relative;
+    }
+
+    .title{
+      text-align:center;
+      font-weight:900;
+      font-size: clamp(28px, 4.2vw, 46px);
+      line-height: 1.05;
+      color: var(--pink);
+      text-shadow: 0 2px 0 rgba(255,255,255,.9);
+      margin: 0 0 10px;
+    }
+
+    .sub{
+      text-align:center;
+      font-size: clamp(18px, 2.2vw, 24px);
+      margin: 10px 0 22px;
+      color:#333;
+      font-weight:650;
+    }
+
+    .bear{
+      display:grid;
+      place-items:center;
+      margin: 6px 0 10px;
+      font-size: 54px;
+      filter: drop-shadow(0 6px 12px rgba(0,0,0,.08));
+      user-select:none;
+    }
+
+    .hearts{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      border-radius: 24px;
+    }
+    .heart{
+      position:absolute;
+      bottom:-20px;
+      font-size: 18px;
+      opacity:.75;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp{
+      from{ transform: translateY(0) translateX(0) rotate(0deg); }
+      to{ transform: translateY(-120vh) translateX(60px) rotate(20deg); }
+    }
+
+    .btn-area{
+      margin-top: 18px;
+      display:flex;
+      justify-content:center;
+      gap: 14px;
+      position:relative;
+      min-height: 120px; /* ✅ mehr Platz, damit No auf Handy ausweichen kann */
+    }
+
+    button{
+      border: none;
+      border-radius: 14px;
+      padding: 14px 22px;
+      font-size: 20px;
+      font-weight: 800;
+      cursor:pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
+      transition: transform .12s ease, box-shadow .12s ease;
+      user-select:none;
+    }
+    button:active{
+      transform: translateY(1px) scale(.99);
+      box-shadow: 0 7px 14px rgba(0,0,0,.12);
+    }
+
+    #yesBtn{
+        background: #2ecc71;
+        color: white;
+
+        /* kleiner */
+        padding: 8px 18px;
+        font-size: 28px;
+        line-height: 1.1;
+        min-width: 110px;
+
+        border-radius: 14px;
+
+        /* mehr nach links */
+        margin-left: -60px;
+    }
+
+
+    #noBtn{
+      background: var(--red);
+      color: white;
+      position:absolute;
+      left: 58%;
+      top: 0;
+      right: auto;
+      white-space: nowrap;
+    }
+
+    .hint{
+      text-align:center;
+      margin-top: 10px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* =========================
+       COUNTDOWN
+       ========================= */
+    .countdown{
+      margin: 0 auto 8px;
+      width: fit-content;
+      display:flex;
+      gap: 8px;
+      align-items:center;
+      justify-content:center;
+      padding: 8px 10px;
+      border-radius: 16px;
+      background: rgba(255, 127, 199, 0.16);
+      border: 1px solid rgba(255, 77, 166, 0.18);
+      box-shadow: 0 10px 20px rgba(0,0,0,.06);
+      user-select:none;
+      flex-wrap: wrap; /* ✅ falls schmaler Screen */
+    }
+    .cd-label{
+      font-size: 13px;
+      font-weight: 850;
+      color:#333;
+    }
+    .cd-box{
+      display:flex;
+      gap: 6px;
+      align-items:center;
+      font-weight: 900;
+      color: var(--pink);
+      font-size: 14px;
+      flex-wrap: wrap;
+      justify-content:center;
+    }
+    .cd-chip{
+      min-width: 36px;
+      text-align:center;
+      padding: 6px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(0,0,0,.06);
+      box-shadow: 0 8px 14px rgba(0,0,0,.06);
+    }
+
+    /* =========================
+       MODAL (YES -> DATE + LETTER)
+       ========================= */
+    .modal{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      background: radial-gradient(circle at 20% 10%, var(--bg1), var(--bg2) 60%);
+      padding: 18px;
+      z-index: 50;
+      overflow:auto; /* ✅ falls sehr klein, Modal kann scrollen */
+    }
+    .modal.open{ display:grid; }
+
+    .modal-card{
+      width:min(680px, 96vw);
+      background:white;
+      border-radius: 22px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      text-align:center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-card h2{
+      margin: 8px 0 6px;
+      color: var(--pink);
+      font-size: 30px;
+      font-weight: 900;
+    }
+
+    .modal-top-emoji{
+      font-size:52px;
+      margin-top:6px;
+    }
+
+    .pick-title{
+      margin: 8px 0 10px;
+      color:#333;
+      font-size: 16px;
+      font-weight: 750;
+    }
+
+    .date-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+
+    .date-btn{
+      padding: 12px 12px;
+      font-size: 15px;
+      font-weight: 850;
+      border-radius: 16px;
+      background: rgba(255, 127, 199, 0.16);
+      color:#333;
+      box-shadow: 0 8px 16px rgba(0,0,0,.08);
+      border: 1px solid rgba(255, 77, 166, 0.20);
+    }
+    .date-btn:hover{ transform: translateY(-1px); }
+
+    .date-btn.random{
+      background: rgba(46, 204, 113, 0.14);
+      border: 1px solid rgba(46, 204, 113, 0.22);
+      font-weight: 950;
+    }
+
+    .chosen{
+      margin: 6px 0 10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(46, 204, 113, 0.12);
+      border: 1px solid rgba(46, 204, 113, 0.25);
+      color:#1f3b2b;
+      font-weight: 850;
+      display:none;
+    }
+    .chosen.show{ display:block; }
+
+    .letter{
+      text-align:left;
+      margin: 10px 0 8px;
+      padding: 14px 14px;
+      border-radius: 18px;
+      background: rgba(255, 230, 241, 0.65);
+      border: 1px solid rgba(255, 77, 166, 0.18);
+      max-height: 220px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    .letter h3{
+      margin: 0 0 8px;
+      color: var(--pink);
+      font-size: 18px;
+      font-weight: 900;
+    }
+    .letter p{
+      margin: 0;
+      color:#333;
+      font-size: 15px;
+      line-height: 1.5;
+      font-weight: 650;
+      white-space: pre-line;
+    }
+
+    .modal-actions{
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    #closeBtn{
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:white;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
+    }
+
+    #copyBtn{
+      background: rgba(0,0,0,.06);
+      color:#333;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.10);
+    }
+
+    #sendHeartBtn{
+      background: rgba(46, 204, 113, 0.14);
+      color:#1f3b2b;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.10);
+      border: 1px solid rgba(46, 204, 113, 0.22);
+      font-weight: 900;
+    }
+
+    .small{
+      color:#666;
+      font-weight:650;
+      font-size: 13px;
+      margin-top: 8px;
+      text-align:center;
+    }
+
+    /* confetti hearts */
+    .pop{
+      position:absolute;
+      left: var(--x);
+      top: var(--y);
+      font-size: var(--s);
+      opacity: 1;
+      transform: translate(-50%,-50%) scale(1);
+      animation: popFly 900ms ease forwards;
+      pointer-events:none;
+      filter: drop-shadow(0 8px 12px rgba(0,0,0,.12));
+    }
+    @keyframes popFly{
+      0%   { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.9); opacity: 0; }
+    }
+
+    /* =========================
+       RANDOM PAGE (separate screen)
+       ========================= */
+    .screen{
+      display:none;
+      width:min(680px, 92vw);
+    }
+    .screen.show{ display:block; }
+
+    .random-card{
+      width:100%;
+      background: rgba(255,255,255,.9);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.6);
+      box-shadow: var(--shadow);
+      padding: 22px 18px 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .random-title{
+      text-align:center;
+      color: var(--pink);
+      font-weight: 950;
+      font-size: 30px;
+      margin: 8px 0 8px;
+    }
+    .random-sub{
+      text-align:center;
+      color:#333;
+      font-weight: 750;
+      margin: 0 0 14px;
+    }
+    .slot{
+      margin: 12px auto 12px;
+      width: min(520px, 92%);
+      padding: 16px 14px;
+      border-radius: 18px;
+      background: rgba(255, 127, 199, 0.14);
+      border: 1px solid rgba(255, 77, 166, 0.18);
+      text-align:center;
+      font-weight: 950;
+      color:#333;
+      font-size: 18px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.06);
+    }
+    .slot.big{
+      font-size: 20px;
+      color: var(--pink);
+      background: rgba(46, 204, 113, 0.12);
+      border: 1px solid rgba(46, 204, 113, 0.24);
+    }
+    .random-actions{
+      display:flex;
+      justify-content:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    #rollBtn{
+      background: linear-gradient(135deg, var(--pink), var(--pink2));
+      color:#fff;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
+    }
+    #backToModalBtn, #dealBtn{
+      background: rgba(0,0,0,.06);
+      color:#333;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 14px;
+      box-shadow: 0 10px 20px rgba(0,0,0,.10);
+    }
+    #dealBtn{
+      display:none;
+      background: rgba(46, 204, 113, 0.14);
+      border: 1px solid rgba(46, 204, 113, 0.22);
+      color:#1f3b2b;
+      font-weight: 950;
+    }
+
+    /* =========================
+       MOBILE BREAKPOINTS
+       ========================= */
+    @media (max-width: 520px){
+      .env-wrap{ gap: 16px; padding: 14px; }
+      .card{ width: min(94vw, 680px); padding: 22px 14px 18px; border-radius: 20px; }
+      .bear{ font-size: 46px; }
+      .modal-card{ width: min(94vw, 680px); border-radius: 18px; padding: 16px 12px; }
+      .letter{ max-height: 44vh; }
+      .countdown{ width: min(94vw, 520px); }
+      .btn-area{ min-height: 150px; } /* ✅ genug Raum fürs “No flieht” */
+      #noBtn{ width: 70%; left: 15%; }  /* ✅ gut auf Handy */
+      #yesBtn{ width: 70%; }            /* ✅ optisch passend */
+    }
+
+    @media (max-width: 460px){
+      .date-grid{ grid-template-columns: 1fr; }
+      #yesBtn{ width: 100%; }
+      #noBtn{ width: 92%; left: 4%; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ENVELOPE SCREEN -->
+  <div id="envelopeScreen">
+    <div class="env-wrap">
+      <h1 class="env-title">Ich hab was für dich… 💌</h1>
+
+      <div id="envelope">
+        <div class="env-back"></div>
+
+        <!-- Karte -->
+        <div class="letter-card">
+          <div class="letter-top">Für dich 💌</div>
+          <div class="letter-line"></div>
+          <div class="letter-bottom">Open 😉</div>
+        </div>
+
+        <div class="env-front"></div>
+        <div class="env-flap"></div>
+        <div class="seal">💗</div>
+      </div>
+
+      <button id="openBtn">OPEN</button>
+      <p class="env-hint">Tippe auf OPEN 😇</p>
+    </div>
+  </div>
+
+  <!-- MAIN SCREEN -->
+  <div class="screen show" id="mainScreen" style="display:none;">
+    <div class="card" id="card">
+      <div class="hearts" id="hearts"></div>
+
+      <!-- COUNTDOWN (Main) -->
+      <div class="countdown">
+        <span class="cd-label">Countdown bis 14.02:</span>
+        <div class="cd-box">
+          <span class="cd-chip" id="cdDays">--</span>D
+          <span class="cd-chip" id="cdHours">--</span>H
+          <span class="cd-chip" id="cdMins">--</span>M
+          <span class="cd-chip" id="cdSecs">--</span>S
+        </div>
+      </div>
+
+      <h1 class="title">Will you be my Valentine? 💖</h1>
+
+      <div class="bear">🧸💐</div>
+
+      <div class="sub" id="question">Überlege es dir gut...😏</div>
+
+      <div class="btn-area" id="btnArea">
+        <button id="yesBtn">Yes</button>
+        <button id="noBtn">No</button>
+      </div>
+
+      <div class="hint">Tipp: If you press „No“ you are in real trouble!</div>
+    </div>
+  </div>
+
+  <!-- MODAL AFTER YES -->
+  <div class="modal" id="modal">
+    <div class="modal-card" id="modalCard">
+      <div class="modal-top-emoji">💖🥰💖</div>
+      <h2 id="successTitle">Yay!!</h2>
+
+      <!-- COUNTDOWN (Modal) -->
+      <div class="countdown" style="margin-top:10px;">
+        <span class="cd-label">Bis 14.02:</span>
+        <div class="cd-box">
+          <span class="cd-chip" id="cdDays2">--</span>D
+          <span class="cd-chip" id="cdHours2">--</span>H
+          <span class="cd-chip" id="cdMins2">--</span>M
+          <span class="cd-chip" id="cdSecs2">--</span>S
+        </div>
+      </div>
+
+      <div class="pick-title" id="pickTitle">Such dir ein Date aus, mein Schatz 💕</div>
+
+      <div class="date-grid">
+        <button class="date-btn" data-date="🍝 Dinner-Date (zuhause oder Restaurant)">🍝 Dinner-Date</button>
+        <button class="date-btn" data-date="🎬 Filmabend + Kuscheln + Snacks">🎬 Filmabend</button>
+        <button class="date-btn" data-date="🌙 Nachtspaziergang + Eis / Tee">🌙 Nachtspaziergang</button>
+        <button class="date-btn" data-date="🎮 Spieleabend (Speziell für Erwachsene..🥵)">🎮 Spieleabend</button>
+        <button class="date-btn" data-date="🚗 Mini-Roadtrip + Musik">🚗 Mini-Roadtrip</button>
+        <button class="date-btn" data-date="🕯️ Pyjama-Date & Deep Talk">🕯️ Pyjama-Date</button>
+
+        <button class="date-btn random" id="randomBtn">🎲 Zufall</button>
+      </div>
+
+      <div class="chosen" id="chosenBox">✅ Deal! Unser Date: <span id="chosenText"></span></div>
+
+      <div class="letter">
+        <h3>يا حياتي…</h3>
+        <p id="loveLetter">
+يا حياتي…
+يا محمد،
+
+ما بعرف كيف عبّر عن اللي بقلبي، بس قلبي بيعرف.
+إنت مو شخص عادي بحياتي، إنت أغلى شي فيها،
+وإنت الإحساس اللي بعيش فيه.
+
+وجودك جنبي بيطمني،
+وضحكتك بتريح قلبي،
+وحضنك هو الأمان اللي برجعله كل مرة أتعب.
+حتى لما أضيع أو أضعف،
+إنت دايمًا الطريق اللي برجعله.
+
+يا روحي، بحبّك مو بس كلام…
+بحبّك بكل لحظة، بكل نفس، وبكل شعور بينا.
+بحبّك لأنك صرت جزء منّي،
+لما أضحك، بضحك معك،
+ولما أتوجّع، ما بريح غير بحضنك.
+
+بدّي ياك تعرف شي واحد وبس:
+إذا ضيّعت طريقي، إنت طريقي.
+وإذا تعبت من الدنيا، إنت راحتي.
+ولأن بدونك الدنيا فاضية…
+ومعيك قلبي أخيرًا لقى وطنه...🩷
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button id="copyBtn">Text kopieren</button>
+        <button id="sendHeartBtn">Schick mir ein ❤️</button>
+        <button id="closeBtn">Zurück</button>
+      </div>
+
+      <div class="small">PS: Ich liebe dich habibi! 🌸</div>
+    </div>
+  </div>
+
+  <!-- RANDOM PAGE -->
+  <div class="screen" id="randomScreen">
+    <div class="random-card" id="randomCard">
+      <div class="countdown" style="margin-bottom:12px;">
+        <span class="cd-label">Countdown bis 14.02:</span>
+        <div class="cd-box">
+          <span class="cd-chip" id="cdDays3">--</span>D
+          <span class="cd-chip" id="cdHours3">--</span>H
+          <span class="cd-chip" id="cdMins3">--</span>M
+          <span class="cd-chip" id="cdSecs3">--</span>S
+        </div>
+      </div>
+
+      <div class="random-title">🎲 Zufalls-Date</div>
+      <div class="random-sub">Ok… wir lassen das Schicksal entscheiden 😇</div>
+
+      <div class="slot" id="rollingText">Klick auf „Los geht’s“ 🎡</div>
+      <div class="slot big" id="finalPick" style="display:none;">✅ Unser Date: …</div>
+
+      <div class="random-actions">
+        <button id="rollBtn">Los geht’s</button>
+        <button id="dealBtn">Deal 😘</button>
+        <button id="backToModalBtn">Zurück zur Auswahl</button>
+      </div>
+
+      <div class="small">Nach dem Ergebnis kannst du auf „Deal 😘“ drücken 💖</div>
+    </div>
+  </div>
+
+  <script>
+    // ====== SETTINGS (hier anpassen) ======
+    const boyfriendName = "Mohamad";
+    const YOUR_PHONE = "+4917687837462"; // <- nicht öffentlich teilen
+    // ====================================
+
+    const dateOptions = [
+      "🍝 Dinner-Date (Zuhause oder Restaurant)",
+      "🎬 Filmabend + Kuscheln + Snacks",
+      "🌙 Nachtspaziergang + Eis / Tee",
+      "🎮 Spieleabend (Speziell für Erwachsene..🥵)",
+      "🚗 Mini-Roadtrip + Musik",
+      "🕯️ Pyjama-Date & Deep Talk"
+    ];
+
+    const mainScreen = document.getElementById("mainScreen");
+    const randomScreen = document.getElementById("randomScreen");
+
+    function showScreen(which){
+      mainScreen.classList.remove("show");
+      randomScreen.classList.remove("show");
+      mainScreen.style.display = "none";
+      randomScreen.style.display = "none";
+      which.classList.add("show");
+      which.style.display = "block";
+    }
+
+    const openBtn = document.getElementById("openBtn");
+    const envelopeScreen = document.getElementById("envelopeScreen");
+    const envelope = document.getElementById("envelope");
+
+    openBtn.addEventListener("click", () => {
+      envelope.classList.add("opening");
+      setTimeout(() => {
+        envelopeScreen.style.display = "none";
+        showScreen(mainScreen);
+      }, 520);
+    });
+
+    const questionEl = document.getElementById("question");
+    const successTitle = document.getElementById("successTitle");
+    const pickTitle = document.getElementById("pickTitle");
+
+    if (boyfriendName.trim()) {
+      questionEl.textContent = `${boyfriendName}, überlege es dir gut...😏`;
+      successTitle.textContent = `Yay, ${boyfriendName}!!`;
+      pickTitle.textContent = `Such dir ein Date aus, ${boyfriendName} 💕`;
+    }
+
+    function getNextValentines(){
+      const now = new Date();
+      let target = new Date(now.getFullYear(), 1, 14, 0, 0, 0);
+      if (now.getTime() > target.getTime()){
+        target = new Date(now.getFullYear() + 1, 1, 14, 0, 0, 0);
+      }
+      return target;
+    }
+
+    const cdTargets = [
+      {d:"cdDays", h:"cdHours", m:"cdMins", s:"cdSecs"},
+      {d:"cdDays2", h:"cdHours2", m:"cdMins2", s:"cdSecs2"},
+      {d:"cdDays3", h:"cdHours3", m:"cdMins3", s:"cdSecs3"}
+    ];
+
+    function pad2(n){ return String(n).padStart(2,"0"); }
+
+    function updateCountdown(){
+      const target = getNextValentines();
+      const now = new Date();
+      let diff = target.getTime() - now.getTime();
+      if (diff < 0) diff = 0;
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      for (const t of cdTargets){
+        const dEl = document.getElementById(t.d);
+        const hEl = document.getElementById(t.h);
+        const mEl = document.getElementById(t.m);
+        const sEl = document.getElementById(t.s);
+        if (!dEl || !hEl || !mEl || !sEl) continue;
+        dEl.textContent = String(days);
+        hEl.textContent = pad2(hours);
+        mEl.textContent = pad2(mins);
+        sEl.textContent = pad2(secs);
+      }
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    const hearts = document.getElementById("hearts");
+    const heartEmojis = ["💗","💖","💘","💝","💕","💓"];
+    function spawnHeart(){
+      const s = document.createElement("div");
+      s.className = "heart";
+      s.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+      const left = Math.random()*100;
+      const dur  = 6 + Math.random()*6;
+      const size = 14 + Math.random()*18;
+      s.style.left = left + "%";
+      s.style.animationDuration = dur + "s";
+      s.style.fontSize = size + "px";
+      s.style.opacity = (0.45 + Math.random()*0.5).toFixed(2);
+      hearts.appendChild(s);
+      setTimeout(()=>s.remove(), dur*1000);
+    }
+    setInterval(spawnHeart, 350);
+
+    const noBtn = document.getElementById("noBtn");
+    const btnArea = document.getElementById("btnArea");
+    let noTexts = ["Think again!", "Nope 😌", "Sure? 😏", "Try again!", "Hehe 😇", "Noooo Wayyy"];
+    let moves = 0;
+
+    function moveNoButton() {
+      const areaRect = btnArea.getBoundingClientRect();
+      const btnRect  = noBtn.getBoundingClientRect();
+      const maxX = Math.max(0, areaRect.width  - btnRect.width);
+      const maxY = Math.max(0, areaRect.height - btnRect.height);
+
+      // ✅ kleine Ränder, damit es nicht am Rand klebt
+      const pad = 6;
+      const x = pad + Math.random() * Math.max(0, maxX - pad*2);
+      const y = pad + Math.random() * Math.max(0, maxY - pad*2);
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.right = "auto";
+      noBtn.textContent = noTexts[moves % noTexts.length];
+      moves++;
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+    noBtn.addEventListener("touchstart", (e) => { e.preventDefault(); moveNoButton(); }, {passive:false});
+    noBtn.addEventListener("click", (e) => { e.preventDefault(); moveNoButton(); });
+
+    const modal = document.getElementById("modal");
+    const modalCard = document.getElementById("modalCard");
+    document.getElementById("yesBtn").addEventListener("click", () => {
+      modal.classList.add("open");
+      if (navigator.vibrate) navigator.vibrate([50, 40, 80]);
+    });
+
+    const popEmojis = ["💖","💗","💕","💘","✨","🥰"];
+    function popHearts(times=14){
+      const rect = modalCard.getBoundingClientRect();
+      for(let i=0;i<times;i++){
+        const e = document.createElement("div");
+        e.className = "pop";
+        e.textContent = popEmojis[Math.floor(Math.random()*popEmojis.length)];
+        const x = rect.width * (0.25 + Math.random()*0.5);
+        const y = rect.height * (0.25 + Math.random()*0.35);
+        const s = (14 + Math.random()*18) + "px";
+        const dx = (Math.random()*240 - 120) + "px";
+        const dy = (Math.random()*220 - 160) + "px";
+        e.style.setProperty("--x", x + "px");
+        e.style.setProperty("--y", y + "px");
+        e.style.setProperty("--s", s);
+        e.style.setProperty("--dx", dx);
+        e.style.setProperty("--dy", dy);
+        modalCard.appendChild(e);
+        setTimeout(()=>e.remove(), 950);
+      }
+    }
+
+    const chosenBox = document.getElementById("chosenBox");
+    const chosenText = document.getElementById("chosenText");
+    document.querySelectorAll(".date-btn[data-date]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const choice = btn.getAttribute("data-date");
+        chosenText.textContent = choice;
+        chosenBox.classList.add("show");
+        popHearts(16);
+      });
+    });
+
+    const randomBtn = document.getElementById("randomBtn");
+    const rollingText = document.getElementById("rollingText");
+    const finalPick = document.getElementById("finalPick");
+    const rollBtn = document.getElementById("rollBtn");
+    const dealBtn = document.getElementById("dealBtn");
+    let lastRandomResult = "";
+
+    function goRandomScreen(){
+      modal.classList.remove("open");
+      showScreen(randomScreen);
+      rollingText.textContent = "Klick auf „Los geht’s“ 🎡";
+      finalPick.style.display = "none";
+      rollBtn.disabled = false;
+      rollBtn.textContent = "Los geht’s";
+      dealBtn.style.display = "none";
+      lastRandomResult = "";
+    }
+
+    randomBtn.addEventListener("click", goRandomScreen);
+
+    function pickRandomDate(){
+      const idx = Math.floor(Math.random() * dateOptions.length);
+      return dateOptions[idx];
+    }
+
+    rollBtn.addEventListener("click", () => {
+      rollBtn.disabled = true;
+      rollBtn.textContent = "Lösen…";
+      finalPick.style.display = "none";
+      dealBtn.style.display = "none";
+
+      let ticks = 0;
+      const maxTicks = 18;
+      const intervalMs = 90;
+
+      const timer = setInterval(() => {
+        rollingText.textContent = dateOptions[ticks % dateOptions.length];
+        ticks++;
+
+        if (ticks >= maxTicks){
+          clearInterval(timer);
+          const result = pickRandomDate();
+          lastRandomResult = result;
+
+          rollingText.textContent = "Und das Schicksal sagt… ✨";
+          finalPick.style.display = "block";
+          finalPick.textContent = `✅ Unser Date: ${result}`;
+
+          chosenText.textContent = result;
+          chosenBox.classList.add("show");
+
+          popHearts(18);
+          rollBtn.disabled = false;
+          rollBtn.textContent = "Nochmal 🎲";
+          dealBtn.style.display = "inline-block";
+          dealBtn.textContent = "Deal 😘";
+        }
+      }, intervalMs);
+    });
+
+    dealBtn.addEventListener("click", () => {
+      showScreen(mainScreen);
+      modal.classList.add("open");
+      if (lastRandomResult) {
+        chosenText.textContent = lastRandomResult;
+        chosenBox.classList.add("show");
+        popHearts(16);
+      }
+    });
+
+    document.getElementById("backToModalBtn").addEventListener("click", () => {
+      showScreen(mainScreen);
+      modal.classList.add("open");
+    });
+
+    const loveLetter = document.getElementById("loveLetter");
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      const date = chosenBox.classList.contains("show")
+        ? `Unser Date: ${chosenText.textContent}\n\n`
+        : "";
+      const text = `${date}${loveLetter.textContent.trim()}`;
+      try{
+        await navigator.clipboard.writeText(text);
+        document.getElementById("copyBtn").textContent = "Kopiert ✅";
+        setTimeout(()=> document.getElementById("copyBtn").textContent = "Text kopieren", 1400);
+      }catch(e){
+        alert("Kopieren geht hier gerade nicht. Wenn du es online hostest (Netlify/GitHub Pages), klappt es sicher 💖");
+      }
+    });
+
+    function openWhatsAppOrSMS(message){
+      const msg = encodeURIComponent(message);
+      const phone = YOUR_PHONE.replace(/\s+/g,"");
+      const wa = `https://wa.me/${phone.replace("+","")}?text=${msg}`;
+      const sms = `sms:${phone}?&body=${msg}`;
+      const w = window.open(wa, "_blank");
+      setTimeout(() => {
+        if (!w || w.closed) window.location.href = sms;
+      }, 600);
+    }
+
+    document.getElementById("sendHeartBtn").addEventListener("click", () => {
+      const datePart = chosenBox.classList.contains("show")
+        ? `Unser Date: ${chosenText.textContent}\n`
+        : "";
+      const message = `Ja! ${datePart}\nIch liebe dich mein BAKLAVAAAAA <333`;
+
+      if (YOUR_PHONE.includes("X")) {
+        alert("Trag bitte oben im Code bei YOUR_PHONE deine Nummer ein (z.B. +49157...) 💕");
+        return;
+      }
+      openWhatsAppOrSMS(message);
+    });
+
+    document.getElementById("closeBtn").addEventListener("click", () => {
+      modal.classList.remove("open");
+    });
+
+    // ✅ Startposition (passt jetzt zu CSS)
+    window.addEventListener("load", () => {
+      noBtn.style.left = "58%";
+      noBtn.style.top  = "0px";
+      noBtn.style.right = "auto";
+    });
+  </script>
+</body>
+</html>
